@@ -17,6 +17,9 @@ enum MenuState {
 
 class ViewController: UIViewController {
     
+    //主页导航控制器
+    var mainNavigationViewController: UINavigationController!
+    
     //主页面控制器
     var mainViewController: MainViewController!
     
@@ -42,6 +45,15 @@ class ViewController: UIViewController {
         //
         view.backgroundColor = UIColor.greenColor()
         
+        //初始化主视图
+        mainNavigationViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewControllerWithIdentifier("mainNavigation") as! UINavigationController
+        view.addSubview(mainNavigationViewController.view)
+        
+        //指定Navigation Bar 左侧按钮事件
+        mainViewController = mainNavigationViewController.viewControllers.first as! MainViewController
+        mainViewController.navigationItem.leftBarButtonItem?.action = Selector("showMenu")
+        
+        /*
         //添加主页面
         mainViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewControllerWithIdentifier("mainView") as! MainViewController
         mainViewController.view.backgroundColor = UIColor.yellowColor()
@@ -50,15 +62,32 @@ class ViewController: UIViewController {
         //建立父子关系
         addChildViewController(mainViewController)
         mainViewController.didMoveToParentViewController(self)
-        
+         */
         //添加拖动手势
         let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: "handlePanGesture:")
-        mainViewController.view.addGestureRecognizer(panGestureRecognizer)
+        //mainViewController.view.addGestureRecognizer(panGestureRecognizer)
+        mainNavigationViewController.view.addGestureRecognizer(panGestureRecognizer)
         
         //单击收起菜单手势
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: "handlePanGesture")
-        mainViewController.view.addGestureRecognizer(tapGestureRecognizer)
-        
+        //mainViewController.view.addGestureRecognizer(tapGestureRecognizer)
+        mainNavigationViewController.view.addGestureRecognizer(tapGestureRecognizer)
+
+    }
+    
+    //导航栏左侧按钮事件响应
+    func showMenu()
+    {
+        //如果菜单是展开的，则会收起，否则就展开
+        if currentState == .Expanded
+        {
+            animateMainView(false)
+        }
+        else
+        {
+            addMenuViewController()
+            animateMainView(true)
+        }
     }
     
     //拖动手势响应函数
@@ -127,7 +156,9 @@ class ViewController: UIViewController {
             //更新当前状态
             currentState = .Expanded
             //动画
-            animateMainViewXPosition(CGRectGetWidth(mainViewController.view.frame) - menuViewExpandedOffset)
+            //animateMainViewXPosition(CGRectGetWidth(mainViewController.view.frame) - menuViewExpandedOffset)
+            animateMainViewXPosition(CGRectGetWidth(mainNavigationViewController.view.frame) - menuViewExpandedOffset)
+            
         }
         //如果是用于隐藏
         else
@@ -149,8 +180,14 @@ class ViewController: UIViewController {
     func animateMainViewXPosition(targetPosition: CGFloat, completion:((Bool) -> Void)! = nil)
     {
         //
+        /*
         UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 1.0, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
             self.mainViewController.view.frame.origin.x = targetPosition
+            }, completion: completion)
+            */
+        //
+        UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 1.0, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+            self.mainNavigationViewController.view.frame.origin.x = targetPosition
             }, completion: completion)
     }
     
@@ -159,11 +196,13 @@ class ViewController: UIViewController {
     {
         if shouldShowShadow
         {
-            mainViewController.view.layer.shadowOpacity = 0.8
+            //mainViewController.view.layer.shadowOpacity = 0.8
+            mainNavigationViewController.view.layer.shadowOpacity = 0.8
         }
         else
         {
-            mainViewController.view.layer.shadowOpacity = 0.0
+            //mainViewController.view.layer.shadowOpacity = 0.0
+            mainNavigationViewController.view.layer.shadowOpacity = 0.8
         }
     }
     
